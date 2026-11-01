@@ -9,7 +9,9 @@ import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.ui.reader.model.ReaderChapter
 import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
+import mihon.app.di.AppGraph
 import mihon.core.archive.archiveReader
+import mihon.core.metro.metroGraph
 import tachiyomi.domain.manga.model.Manga
 import uy.kohesive.injekt.injectLazy
 
@@ -39,11 +41,40 @@ internal class DownloadPageLoader(
             manga.title,
             source,
         )
-        return if (chapterPath?.isFile == true) {
+        val originalPages = if (chapterPath?.isFile == true) {
             getPagesFromArchive(chapterPath)
         } else {
             getPagesFromDirectory()
         }
+
+        try {
+            val appGraph: AppGraph = context.metroGraph()
+            val translationManager = appGraph.translationManager
+            val translationPreferences = appGraph.translationPreferences
+
+            return originalPages.map { page ->
+                val originalStream = page.stream
+                page.apply {
+                    stream = {
+                        try {
+                            if (translationPreferences.showTranslations.get()) {
+                                val stream = translationManager.getTranslatedPageStreamOrNull(dbChapter.id, page.index)
+                                stream ?: originalStream?.invoke()!!
+                            } else {
+                                originalStream?.invoke()!!
+                            }
+                        } catch (_: Throwable) {
+                            originalStream?.invoke()!!
+                        }
+                    }
+                }
+            }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+
+        return originalPages
     }
 
     override fun recycle() {

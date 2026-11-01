@@ -91,3 +91,31 @@
     public <init>();
     public void destroy();
 }
+
+# Offline translation pipeline & ONNX Runtime
+-keep class mihon.feature.translation.** { *; }
+-keepclassmembers class mihon.feature.translation.** { *; }
+-keepclassmembers class * {
+    @kotlinx.serialization.SerialName <fields>;
+}
+-keepclasseswithmembers class mihon.feature.translation.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keep class ai.onnxruntime.** { *; }
+-keepclassmembers class ai.onnxruntime.** { *; }
+
+# Google ML Kit and Firebase Components (Reflection instantiation & on-device OCR)
+-keep class * implements com.google.firebase.components.ComponentRegistrar {
+    public <init>();
+    public *;
+}
+-keep class com.google.firebase.components.** { *; }
+-keep interface com.google.firebase.components.** { *; }
+-keep class com.google.mlkit.** { *; }
+-keep interface com.google.mlkit.** { *; }
+-keepclassmembers class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.internal.mlkit_** { *; }
+-keepclassmembers class com.google.android.gms.internal.mlkit_** { *; }
+-keep class com.google.android.gms.tasks.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-keepclassmembers class com.google.android.gms.common.** { *; }

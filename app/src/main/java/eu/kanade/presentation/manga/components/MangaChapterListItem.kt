@@ -63,6 +63,9 @@ fun MangaChapterListItem(
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
     onChapterSwipe: (LibraryPreferences.ChapterSwipeAction) -> Unit,
+    translationProgressProvider: (() -> mihon.feature.translation.TranslationProgress)? = null,
+    translationStateProvider: (() -> mihon.feature.translation.ChapterTranslationState)? = null,
+    onTranslationClick: ((TranslationUiAction) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val start = getSwipeAction(
@@ -168,6 +171,24 @@ fun MangaChapterListItem(
                             )
                         }
                     }
+                }
+            }
+
+            if ((translationProgressProvider != null || translationStateProvider != null) && onTranslationClick != null) {
+                val progress = translationProgressProvider?.invoke()
+                if (progress != null) {
+                    ChapterTranslationIndicator(
+                        translationProgress = progress,
+                        onClick = onTranslationClick,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                } else {
+                    val state = translationStateProvider?.invoke() ?: mihon.feature.translation.ChapterTranslationState.NOT_TRANSLATED
+                    ChapterTranslationIndicator(
+                        translationState = state,
+                        onClick = onTranslationClick,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
                 }
             }
 

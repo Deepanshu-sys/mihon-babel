@@ -11,6 +11,7 @@ import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsViewModel
 import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
 import eu.kanade.tachiyomi.util.system.hasDisplayCutout
+import mihon.core.metro.metroGraph
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.CheckboxItem
 import tachiyomi.presentation.core.components.SettingsChipRow
@@ -60,6 +61,13 @@ internal fun ColumnScope.GeneralPage(viewModel: ReaderSettingsViewModel) {
     CheckboxItem(
         label = stringResource(MR.strings.pref_show_page_number),
         pref = viewModel.preferences.showPageNumber,
+    )
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val appGraph: mihon.app.di.AppGraph = context.metroGraph()
+    CheckboxItem(
+        label = "Show Translated Pages (Offline)",
+        pref = appGraph.translationPreferences.showTranslations,
     )
 
     val verticalNavigatorModes by viewModel.preferences.verticalNavigator.collectAsState()

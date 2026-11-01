@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.ui.reader.loader
 
+import android.content.Context
 import eu.kanade.domain.chapter.model.toSChapter
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.online.HttpSource
@@ -15,6 +16,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mihon.core.metro.metroGraph
 import mihon.data.cache.ChapterCache
 import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
@@ -28,6 +30,7 @@ internal class HttpPageLoader(
     private val chapterCache: ChapterCache,
     private val appScope: CoroutineScope,
     private val canLoadAhead: () -> Boolean,
+    private val context: Context,
 ) : PageLoader() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -124,21 +127,18 @@ internal class HttpPageLoader(
      * points at this job, so a newer job for the same page isn't evicted by an older one finishing.
      */
     private fun Job.trackAsDownloadJob(pageIndex: Int) = also { job ->
-        downloadJobs[pageIndex] = job
         job.invokeOnCompletion { downloadJobs.remove(pageIndex, job) }
     }
 
-    /**
-     * Starts loading [page] unless it's already loaded or a load is already in flight for it. Claiming the slot and
-     * starting the job has to be atomic, otherwise two chunk chains can both launch the same page.
-     */
     private fun launchLoadOnce(page: ReaderPage): Job? {
         val pageIndex = page.index
-        // A page another chain is already loading still counts towards this chunk, otherwise the chain moves on
-        // and starts the next chunk while it's in flight
-        downloadJobs[pageIndex]?.takeIf { it.isActive }?.let { return it }
-        if (page.status !is Page.State.Queue && page.status !is Page.State.Error) return null
-
+        val existing = downloadJobs[pageIndex]
+        if (existing != null) {
+            return existing
+        }
+        if (page.status !is Page.State.Queue) {
+            return null
+        }
         val job = scope.launch(start = CoroutineStart.LAZY) { internalLoadPage(page) }
         val running = downloadJobs.putIfAbsent(pageIndex, job)
         if (running != null) {
@@ -238,14 +238,26 @@ internal class HttpPageLoader(
             }
 
             page.downloadStream = null
+            val chapterId = chapter.chapter.id
+            val originalStream = { file.inputStream() }
             page.stream = {
                 try {
-                    file.inputStream()
+                    val appGraph: mihon.app.di.AppGraph = context.metroGraph()
+                    val translationManager = appGraph.translationManager
+                    val translationPreferences = appGraph.translationPreferences
+                    if (translationPreferences.showTranslations.get()) {
+                        val stream = translationManager.getTranslatedPageStreamOrNull(chapterId, page.index)
+                        stream ?: originalStream()
+                    } else {
+                        originalStream()
+                    }
                 } catch (e: FileNotFoundException) {
                     // Gone from the cache since, so it's fetched again and shown once it's back
                     page.status = Page.State.Queue
                     launchLoadOnce(page)
                     throw e
+                } catch (_: Throwable) {
+                    originalStream()
                 }
             }
             page.status = Page.State.Ready

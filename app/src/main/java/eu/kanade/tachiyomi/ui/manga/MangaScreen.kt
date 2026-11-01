@@ -34,6 +34,7 @@ import eu.kanade.presentation.manga.components.DeleteChaptersDialog
 import eu.kanade.presentation.manga.components.MangaCoverDialog
 import eu.kanade.presentation.manga.components.ScanlatorFilterDialog
 import eu.kanade.presentation.manga.components.SetIntervalDialog
+import eu.kanade.presentation.manga.components.TranslationDiagnosticsDialog
 import eu.kanade.presentation.util.AssistContentScreen
 import eu.kanade.presentation.util.Screen
 import eu.kanade.presentation.util.isTabletUi
@@ -84,6 +85,7 @@ class MangaScreen(
             }
 
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val translationProgressMap by viewModel.translationProgress.collectAsStateWithLifecycle()
 
         if (state is MangaViewModel.State.Loading) {
             LoadingScreen()
@@ -169,6 +171,18 @@ class MangaScreen(
             onChapterSelected = viewModel::toggleSelection,
             onAllChapterSelected = viewModel::toggleAllSelection,
             onInvertSelection = viewModel::invertSelection,
+            translationProgressProvider = { chapterId ->
+                translationProgressMap[chapterId] ?: mihon.feature.translation.TranslationProgress(
+                    chapterId = chapterId,
+                    state = if (viewModel.isTranslated(chapterId)) mihon.feature.translation.ChapterTranslationState.TRANSLATED else mihon.feature.translation.ChapterTranslationState.NOT_TRANSLATED,
+                    percent = if (viewModel.isTranslated(chapterId)) 100 else 0,
+                    progress = if (viewModel.isTranslated(chapterId)) 1f else 0f,
+                )
+            },
+            translationStateProvider = { chapterId ->
+                translationProgressMap[chapterId]?.state ?: if (viewModel.isTranslated(chapterId)) mihon.feature.translation.ChapterTranslationState.TRANSLATED else mihon.feature.translation.ChapterTranslationState.NOT_TRANSLATED
+            },
+            onTranslationClick = viewModel::runChapterTranslationActions,
         )
 
         var showScanlatorsDialog by remember { mutableStateOf(false) }
@@ -285,6 +299,12 @@ class MangaScreen(
                     onDismissRequest = onDismissRequest,
                     onValueChanged = { interval: Int -> viewModel.setFetchInterval(dialog.manga, interval) }
                         .takeIf { viewModel.isUpdateIntervalEnabled },
+                )
+            }
+            is MangaViewModel.Dialog.TranslationDiagnostics -> {
+                TranslationDiagnosticsDialog(
+                    manifest = dialog.manifest,
+                    onDismissRequest = onDismissRequest,
                 )
             }
         }

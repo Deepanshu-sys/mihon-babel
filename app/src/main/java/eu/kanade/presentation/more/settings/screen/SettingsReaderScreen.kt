@@ -28,6 +28,7 @@ object SettingsReaderScreen : SearchableSettings {
     override fun getPreferences(): List<Preference> {
         val context = LocalContext.current
         val readerPref = remember { context.appGraph.readerPreferences }
+        val translationPref = remember { context.appGraph.translationPreferences }
 
         return listOf(
             Preference.PreferenceItem.ListPreference(
@@ -65,6 +66,7 @@ object SettingsReaderScreen : SearchableSettings {
                 subtitle = stringResource(MR.strings.pref_load_ahead_only_over_wifi_summary),
             ),
             getDisplayGroup(readerPreferences = readerPref),
+            getTranslationGroup(translationPreferences = translationPref),
             getEInkGroup(readerPreferences = readerPref),
             getReadingGroup(readerPreferences = readerPref),
             getPagedGroup(readerPreferences = readerPref),
@@ -112,6 +114,48 @@ object SettingsReaderScreen : SearchableSettings {
                 Preference.PreferenceItem.SwitchPreference(
                     preference = readerPreferences.showPageNumber,
                     title = stringResource(MR.strings.pref_show_page_number),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getTranslationGroup(
+        translationPreferences: mihon.feature.translation.TranslationPreferences,
+    ): Preference.PreferenceGroup {
+        return Preference.PreferenceGroup(
+            title = "Offline Comic Translation",
+            preferenceItems = listOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = translationPreferences.showTranslations,
+                    title = "Show translated pages (Offline)",
+                    subtitle = "Automatically display offline translated pages in reader when available",
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    preference = translationPreferences.effortLevel,
+                    entries = mapOf(
+                        mihon.feature.translation.TranslationEffortLevel.LOW.key to "Low (Fastest, No Context)",
+                        mihon.feature.translation.TranslationEffortLevel.MEDIUM.key to "Medium (Rolling Context)",
+                        mihon.feature.translation.TranslationEffortLevel.HIGH.key to "High (Deep Chapter Context)",
+                    ),
+                    title = "Translation Effort",
+                    subtitle = "%s",
+                ),
+
+                Preference.PreferenceItem.ListPreference(
+                    preference = translationPreferences.comicFont,
+                    entries = mapOf(
+                        "animeace.ttf" to "Anime Ace BB (Classic Comic)",
+                        "comic_book.otf" to "Comic Book (Authentic Lettering)",
+                        "manga_master_bb.ttf" to "Manga Master BB (Bold Dynamic)",
+                    ),
+                    title = "Lettering Font",
+                    subtitle = "%s",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = translationPreferences.smartInpaintingFilter,
+                    title = "Smart Watermark Filter",
+                    subtitle = "Skip heavy neural passes on scanlation credit URLs to process pages in 1-2s",
                 ),
             ),
         )
