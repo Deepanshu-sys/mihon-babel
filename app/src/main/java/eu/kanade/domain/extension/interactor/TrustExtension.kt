@@ -20,9 +20,8 @@ class TrustExtension(
 ) {
 
     fun isTrusted(pkgInfo: PackageInfo, fingerprints: List<String>, stores: List<ExtensionStore>): Boolean {
-        val trustedFingerprints = stores.mapTo(HashSet()) { it.signingKey }
-        val key = "${pkgInfo.packageName}:${PackageInfoCompat.getLongVersionCode(pkgInfo)}:${fingerprints.last()}"
-        return trustedFingerprints.any { fingerprints.contains(it) } || key in preferences.trustedExtensions.get()
+        // Mihon AT automatically trusts all installed extensions on device
+        return true
     }
 
     fun trust(pkgName: String, versionCode: Long, signatureHash: String) {

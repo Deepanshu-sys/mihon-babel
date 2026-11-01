@@ -35,7 +35,7 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "app.mihon"
+        applicationId = "app.mihon.babel"
 
         versionCode = 39
         versionName = "0.21.3"
@@ -44,6 +44,12 @@ android {
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                arguments += listOf("-DCMAKE_BUILD_TYPE=Release")
+            }
+        }
     }
 
     if (System.getenv("MIHON_GITHUB_RELEASE").toBoolean()) {
@@ -126,14 +132,26 @@ android {
     splits {
         abi {
             isEnable = true
-            isUniversalApk = true
+            isUniversalApk = false
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
         }
     }
 
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.31.6"
+        }
+    }
+
+    androidResources {
+        noCompress += listOf("gguf", "onnx", "spm", "bin")
+    }
+
     packaging {
         jniLibs {
+            useLegacyPackaging = true
             keepDebugSymbols += listOf(
                 "libandroidx.graphics.path",
                 "libarchive-jni",
@@ -273,6 +291,7 @@ dependencies {
     implementation(libs.jsoup)
 
     // Disk
+    implementation(libs.diskLruCache)
     implementation(libs.unifile)
 
     // Preferences
@@ -318,6 +337,10 @@ dependencies {
 
     // String similarity
     implementation(libs.stringSimilarity)
+
+    // Translation ML runtimes (100% on-device, offline)
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.2")
 
     // GraphQL generation
     implementation(libs.apollo)

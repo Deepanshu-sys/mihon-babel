@@ -1,86 +1,154 @@
 <div align="center">
 
-<a href="https://mihon.app">
-    <img src="./.github/assets/logo.png" alt="Mihon logo" title="Mihon logo" width="80"/>
-</a>
+<img src=".github/assets/logo.png" alt="Mihon Babel Logo" width="120" />
 
-# Mihon [App](#)
+# Mihon Babel
 
-### Full-featured reader
-Discover and read manga, webtoons, comics, and more – easier than ever on your Android device.
+**On-Device Neural Comic Translation Engine for Android**
 
-[![Discord server](https://img.shields.io/discord/1195734228319617024.svg?label=&labelColor=6A7EC2&color=7389D8&logo=discord&logoColor=FFFFFF)](https://discord.gg/mihon)
-[![GitHub downloads](https://img.shields.io/github/downloads/mihonapp/mihon/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://mihon.app/download)
+[![Version](https://img.shields.io/badge/Release-v0.21.3-00D2FF.svg?style=flat-square)](https://github.com/Deepanshu-sys/mihon-babel/releases)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square)](LICENSE.txt)
+[![Platform](https://img.shields.io/badge/Platform-Android_8.0+-green.svg?style=flat-square)](https://developer.android.com)
+[![Architecture](https://img.shields.io/badge/Arch-ARM64_%7C_FP16-orange.svg?style=flat-square)](https://developer.arm.com)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/mihonapp/mihon/build.yml?labelColor=27303D)](https://github.com/mihonapp/mihon/actions/workflows/build_push.yml)
-[![License: Apache-2.0](https://img.shields.io/github/license/mihonapp/mihon?labelColor=27303D&color=0877d2)](/LICENSE)
-[![Translation status](https://img.shields.io/weblate/progress/mihon?labelColor=27303D&color=946300)](https://hosted.weblate.org/engage/mihon/)
+<p align="center">
+  High-performance offline comic reader with integrated neural OCR, dialogue translation, and automated typesetting.<br/>
+  <i>100% On-Device • Zero Cloud Dependencies • Full Data Privacy</i>
+</p>
 
-## Download
-
-[![Mihon Stable](https://img.shields.io/github/release/mihonapp/mihon.svg?maxAge=3600&label=Stable&labelColor=06599d&color=043b69)](https://mihon.app/download)
-[![Mihon Beta](https://img.shields.io/github/v/release/mihonapp/mihon-preview.svg?maxAge=3600&label=Beta&labelColor=2c2c47&color=1c1c39)](https://mihon.app/download)
-
-*Requires Android 8.0 or higher.*
-
-## Features
-
-<div align="left">
-
-* Local reading of content.
-* A configurable reader with multiple viewers, reading directions and other settings.
-* Tracker support: [MangaBaka](https://mangabaka.org), [MyAnimeList](https://myanimelist.net/), [AniList](https://anilist.co/), [Kitsu](https://kitsu.app/), [MangaUpdates](https://mangaupdates.com), [Shikimori](https://shikimori.one), [Bangumi](https://bgm.tv/), and [Hikka](https://hikka.io/) support.
-* Categories to organize your library.
-* Light and dark themes.
-* Schedule updating your library for new chapters.
-* Create backups locally to read offline or to your desired cloud service.
-* Plus much more...
+---
 
 </div>
 
-## Contributing
+## Visual Showcase
 
-[Code of conduct](./CODE_OF_CONDUCT.md) · [Contributing guide](./CONTRIBUTING.md)
+Mihon Babel provides scanlation-grade typesetting, clean bubble segmentation, and context-aware dialogue translation directly on your device:
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Before reporting a new issue, take a look at the [FAQ](https://mihon.app/docs/faq/general), the [changelog](https://mihon.app/changelogs/) and the already opened [issues](https://github.com/mihonapp/mihon/issues); if you got any questions, join our [Discord server](https://discord.gg/mihon).
-
-
-### Repositories
-
-[![mihonapp/website - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=website&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/website/)
-[![mihonapp/bitmap.kt - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=bitmap.kt&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/bitmap.kt/)
-
-### Credits
-
-Thank you to all the people who have contributed!
-
-<a href="https://github.com/mihonapp/mihon/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=mihonapp/mihon" alt="Mihon app contributors" title="Mihon app contributors" width="800"/>
-</a>
-
-### Disclaimer
-
-The developer(s) of this application does not have any affiliation with the content providers available, and this application hosts zero content.
-
-### License
-
-<pre>
-Copyright © 2015 Javier Tomás
-Copyright © 2024 Mihon Open Source Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-</pre>
-
+<div align="center">
+  <img src="docs/images/showcase_comparison.jpg" alt="Mihon Babel Translation Showcase" width="100%" />
 </div>
+
+---
+
+## Key Features
+
+* **100% Local & Private:** All OCR, bubble detection, dialogue translation, and artwork inpainting execute strictly on-device with zero network requests.
+* **Universal Hardware Acceleration:** Built on embedded `llama.cpp` runtime with multi-kernel CPU dispatch (`GGML_CPU_ALL_VARIANTS=ON`), leveraging ARM NEON, ARMv8.2-A FP16, and Arm KleidiAI across modern mobile chipsets.
+* **Context-Aware Dialogue Memory:** Automatically preserves character consistency, speaker registers, and narrative continuity across entire chapters.
+* **High-Performance Reaction Cache:** Common conversational reactions and recurring short utterances resolve instantaneously via an in-memory cache.
+* **Boundary-Preserving Inpainting:** Dual-layer reconstruction using flat background fill with fallback to neural inpainting for textured artwork.
+* **Native Reader Integration:** Seamlessly integrated into the reader interface. Background processing via Android WorkManager or on-demand single-tap translation.
+
+---
+
+## Translation Pipeline Architecture
+
+```mermaid
+flowchart TD
+    PAGE["Source Comic Page"]
+
+    PAGE --> DET["Bubble & Region Detection<br/>(YOLOv8 ONNX)"]
+    PAGE --> OCR["Neural Text Recognition<br/>(On-Device Mobile Vision)"]
+
+    DET --> ALIGN["Spatial Reading Order Alignment<br/>(Bounding Box & Text Pairing)"]
+    OCR --> ALIGN
+
+    ALIGN --> MASK["Text Stroke Masker<br/>(Glyph Boundary Dilation)"]
+    MASK --> INPAINT{"Surface Analysis"}
+    INPAINT -->|"Uniform Fill"| FLAT["Boundary Color Inpainting<br/>(Flat Speech Bubbles)"]
+    INPAINT -->|"Complex Art"| LAMA["LaMa Neural Inpainting<br/>(FP16 Texture Synthesis)"]
+
+    ALIGN --> DISPATCH{"Dialogue Engine"}
+    DISPATCH -->|"Cache Hit"| CACHE["Instant Response Cache<br/>(Common Reactions & SFX)"]
+    DISPATCH -->|"Context Miss"| LLM["Index-Translate 2B GGUF<br/>(llama.cpp ARMv8.2-A FP16)"]
+
+    FLAT --> TYPESET["Dynamic Typography Engine<br/>(Binary Font Search & Oval Fitting)"]
+    LAMA --> TYPESET
+    CACHE --> TYPESET
+    LLM --> TYPESET
+
+    TYPESET --> OUTPUT["Rendered Translated Page"]
+```
+
+---
+
+## Release Packages
+
+Mihon Babel is distributed in two pre-compiled packages under [GitHub Releases](https://github.com/Deepanshu-sys/mihon-babel/releases):
+
+| Package Edition | File Name | Size | Architecture | Details |
+| :--- | :--- | :--- | :--- | :--- |
+| **All-in-One** *(Recommended)* | `Mihon_Babel_v0.21.3_AllInOne_arm64-v8a.apk` | **~1.59 GB** | `arm64-v8a` | **Standalone Installer.** Pre-bundles the translation model weights, inpainter, and detector. Ready to run immediately after installation. |
+| **Slim Edition** | `Mihon_Babel_v0.21.3_Slim_arm64-v8a.apk` | **~279 MB** | `arm64-v8a` | Lightweight installer bundling detector and inpainter. Model weights load dynamically from external storage. |
+
+---
+
+## Quick Setup (Slim Edition)
+
+When using the **Slim Edition**, place the model weights file on your device storage:
+
+1. Download **[index-translate-2b-q4_k_m.gguf](https://huggingface.co/bilibili/Index-Translate)** (~1.3 GB).
+2. Move the file into any of the following directories on your device:
+   * `/sdcard/MihonModels/index_translate_2b.gguf`
+   * `/sdcard/Download/MihonModels/index_translate_2b.gguf`
+   * `/sdcard/Android/data/app.mihon.babel/files/models/index_translate_2b.gguf`
+3. Open any chapter in the reader and tap the **Translate** icon (🌐).
+
+---
+
+## Frequently Asked Questions
+
+### Is there a Mihon alternative that supports built-in translation?
+**Yes.** **Mihon Babel** (`app.mihon.babel`) is an open-source fork designed for on-device comic translation. It translates downloaded chapters directly within the reader without sending data to external servers.
+
+### Can official Mihon translate comics natively?
+Standard Mihon does not include a translation pipeline. **Mihon Babel** extends the reader by embedding an on-device neural engine (`llama.cpp`, `Index-Translate`, and `ML Kit`) to process comic dialogue offline.
+
+### What platforms and hardware are supported?
+* **Architecture:** ARM64 Android devices (`arm64-v8a`) with ARMv8.2-A FP16 acceleration.
+* **Operating System:** Android 8.0 (API 26) or higher.
+
+---
+
+## Model Licenses & Compliance
+
+All neural models and libraries integrated into Mihon Babel are open-source and legally redistributable under their respective permissive licenses:
+
+| Component | Architecture / Base | License | Terms & Attribution |
+| :--- | :--- | :--- | :--- |
+| **Index-Translate 2B** | Qwen 2.5 (1.5B/2B) / GGUF | **Apache 2.0** | Permissive open-source license (`bilibili/Index-Translate`). |
+| **Comic Text & Bubble Detector** | YOLOv8 / ONNX | **AGPL-3.0 / Open Research** | Comic bubble detection weights (`ogkalu/comic-text-and-bubble-detector`). |
+| **LaMa Inpainting** | Large Mask Inpainting (FP16 ONNX) | **Apache 2.0** | Permissive open-source license (`advimman/lama`). |
+| **MarianMT / OPUS-MT** | Transformer Seq2Seq | **CC-BY-4.0 / Apache 2.0** | Multilingual translation models by the OPUS project. |
+| **Google ML Kit OCR** | Mobile Vision On-Device SDK | **Google APIs TOS** | Officially licensed for redistribution within Android applications. |
+
+> **Note on Model Distribution:** The 1.3 GB model weights are distributed via **GitHub Releases** (which supports up to 2 GB binary assets per release) to comply with standard GitHub repository limits.
+
+---
+
+## Building from Source
+
+### Prerequisites
+* Android Studio Ladybug (or newer)
+* Android SDK 36, NDK 27.2.12479018
+* CMake 3.31.6+
+* JDK 17 or JDK 21
+
+### Build Release APKs
+```bash
+# Clone the repository
+git clone https://github.com/Deepanshu-sys/mihon-babel.git
+cd mihon-babel
+
+# Build Release APK
+./gradlew :app:assembleRelease
+```
+
+---
+
+## Acknowledgements
+
+* **[Mihon](https://github.com/mihonapp/mihon):** The premier open-source manga reader for Android (Apache License 2.0).
+* **[llama.cpp](https://github.com/ggml-org/llama.cpp):** LLM inference in C/C++ by Georgi Gerganov and contributors (MIT License).
+* **[Index-Translate](https://github.com/bilibili/Index-Translate):** High-quality comic translation model by Bilibili.
+* **[LaMa Inpainting](https://github.com/advimman/lama):** Resolution-robust large mask inpainting.

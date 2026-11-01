@@ -77,6 +77,7 @@ import uy.kohesive.injekt.api.InjektScope
 import java.security.Security
 import kotlin.concurrent.thread
 import mihon.icons.materialsymbols.R as MaterialSymbolsR
+import okhttp3.OkHttp
 
 class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factory, GraphProvider<AppGraph> {
 
@@ -123,6 +124,21 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
             if (packageName != process) WebView.setDataDirectorySuffix(process)
         }
 
+        // The OkHttp AndroidX Startup initializer scans Conscrypt resources synchronously. With the
+        // translation models bundled in the APK, do the equivalent setup in the background so cold
+        // launch remains responsive. This keeps OkHttp's application context available to clients.
+        thread(name = "OkHttpPlatformInit") {
+            try {
+                // TLS 1.3 support for Android < 10. Keep provider insertion before OkHttp selection.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    Security.insertProviderAt(Conscrypt.newProvider(), 1)
+                }
+                OkHttp.initialize(applicationContext)
+            } catch (e: Exception) {
+                logcat(LogPriority.ERROR, e) { "Failed to initialize the OkHttp TLS platform" }
+            }
+        }
+
         // The graph and the code after it read the default preferences straight away. Loading them takes a disk
         // read, so start it on another thread while the graph is built; the first read then waits less or not at all
         thread(name = "PreferencesPreload") { PreferenceManager.getDefaultSharedPreferences(this) }
@@ -135,11 +151,6 @@ class App : Application(), DefaultLifecycleObserver, SingletonImageLoader.Factor
         TelemetryConfig.init(applicationContext)
 
         GlobalExceptionHandler.initialize(applicationContext, CrashActivity::class.java)
-
-        // TLS 1.3 support for Android < 10
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            Security.insertProviderAt(Conscrypt.newProvider(), 1)
-        }
 
         setupNotificationChannels()
 

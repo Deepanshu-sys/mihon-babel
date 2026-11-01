@@ -139,6 +139,7 @@ class MangaViewModel(
     private val sourceManager: SourceManager,
     private val refreshTracks: RefreshTracks,
     private val coverCache: CoverCache,
+    private val translationManager: mihon.feature.translation.TranslationManager,
 ) : ViewModel() {
 
     private val subscriberGate = SubscriberGate()
@@ -191,6 +192,7 @@ class MangaViewModel(
     // Progress ticks often, so only the download indicators that read it recompose instead of every tick rebuilding
     // the chapter list
     private val downloadProgress = mutableStateMapOf<Long, Int>()
+    val translationProgress: StateFlow<Map<Long, mihon.feature.translation.TranslationProgress>> = translationManager.progress
 
     // A finished chapter leaves the queue, and its last status change can be lost with it, so its state is left to
     // the queried item once it's no longer queued
@@ -732,6 +734,53 @@ class MangaViewModel(
         }
     }
 
+    fun isTranslated(chapterId: Long): Boolean = translationManager.isTranslated(chapterId)
+
+    fun runChapterTranslationActions(
+        item: ChapterList.Item,
+        action: eu.kanade.presentation.manga.components.TranslationUiAction,
+    ) {
+        val manga = successState?.manga ?: return
+        when (action) {
+            eu.kanade.presentation.manga.components.TranslationUiAction.START,
+            eu.kanade.presentation.manga.components.TranslationUiAction.RETRANSLATE -> {
+                val forceReprocess = action == eu.kanade.presentation.manga.components.TranslationUiAction.RETRANSLATE
+                translationManager.enqueue(
+                    mihon.feature.translation.TranslationJob(
+                        chapterId = item.chapter.id,
+                        chapterName = item.chapter.name,
+                        chapterUrl = item.chapter.url,
+                        mangaTitle = manga.title,
+                        scanlator = item.chapter.scanlator,
+                        sourceId = manga.source,
+                        forceReprocess = forceReprocess,
+                        mangaId = manga.id,
+                    ),
+                )
+            }
+            eu.kanade.presentation.manga.components.TranslationUiAction.CANCEL -> {
+                translationManager.cancel(item.chapter.id)
+            }
+            eu.kanade.presentation.manga.components.TranslationUiAction.DELETE -> {
+                translationManager.delete(item.chapter.id)
+            }
+            eu.kanade.presentation.manga.components.TranslationUiAction.VIEW_DIAGNOSTICS -> {
+                showTranslationDiagnostics(item.chapter.id)
+            }
+        }
+    }
+
+    fun showTranslationDiagnostics(chapterId: Long) {
+        viewModelScope.launch {
+            val manifest = translationManager.getManifest(chapterId)
+            if (manifest != null) {
+                dialog.value = Dialog.TranslationDiagnostics(manifest)
+            } else {
+                context.toast("No diagnostics report available yet")
+            }
+        }
+    }
+
     fun runDownloadAction(action: DownloadAction) {
         val chaptersToDownload = when (action) {
             DownloadAction.NEXT_1_CHAPTER -> getUnreadChaptersSorted().take(1)
@@ -1058,6 +1107,7 @@ class MangaViewModel(
         data object SettingsSheet : Dialog
         data object TrackSheet : Dialog
         data object FullCover : Dialog
+        data class TranslationDiagnostics(val manifest: mihon.feature.translation.model.ChapterTranslationManifest) : Dialog
     }
 
     fun dismissDialog() {
